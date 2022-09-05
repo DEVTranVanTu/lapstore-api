@@ -44,11 +44,55 @@ const getCategory = async (req: Request) => {
 };
 
 const getCategoryNav = async () => {
+  let categories = null;
+
+  await Category.find()
+    .then((data) => {
+      if (!data) {
+        throw {
+          status: 404,
+          success: false,
+          message: "Category not found",
+        };
+      } else {
+        categories = data;
+      }
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+
   const categoriesNav = await subcategoryModel
     .find()
     .populate("category", "categoryName _id");
 
-  return categoriesNav;
+  const result = [];
+
+  for (let i = 0; i < categories.length; i++) {
+    const check = categoriesNav.filter((j) => JSON.stringify(j.category._id )== JSON.stringify(categories[i]._id))
+    if (check) {
+      const subCategory = check.map((i) => {
+        const sub = {
+          _id: i._id,
+          subCategoryName: i.subCategoryName
+        }
+        return sub
+      })
+      const value = {
+        _id: categories[i]._id,
+        categoryName: categories[i].categoryName,
+        subCategory: subCategory
+      }
+      result.push(value)
+    }
+  }
+
+
+  return result;
 };
 
 const getCategoryById = async (id: string) => {
