@@ -12,7 +12,6 @@ const router = express.Router();
 
 /**Get status */
 router.get("/status", (req: Request, res: Response) => {
-  res.send('test')
   res.status(HttpStatusCode.OK).json({ status: "OK!" });
 });
 
