@@ -34,7 +34,7 @@ const bootServer = () => {
 
   app.use("/api", api);
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`Server running on ${env.APP_HOST}:${env.APP_PORT}`);
+  app.listen(env.APP_PORT, () => {
+    console.log(`Server running on port:${env.APP_PORT}`);
   });
 };
