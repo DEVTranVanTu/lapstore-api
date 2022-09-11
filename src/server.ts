@@ -5,6 +5,7 @@ import { Error } from "mongoose";
 import { api } from "./routers";
 
 const port = env.APP_PORT || 5050
+const host = '0.0.0.0'
 
 connectDB()
   .then(() => console.log("Connected database successfully!"))
@@ -36,7 +37,7 @@ const bootServer = () => {
 
   app.use("/api", api);
 
-  app.listen(port, () => {
+  app.listen(port,host, () => {
     console.log(`Server running on port:${port}`);
   });
 };
