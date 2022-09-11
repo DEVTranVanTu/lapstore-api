@@ -5,7 +5,7 @@ dotenv.config();
 export const env = {
   MONGODB_URI: process.env.MONGODB_URI || "localhost:27017",
   APP_HOST: process.env.APP_HOST || "localhost",
-  APP_PORT: parseInt(<string>process.env.APP_PORT) || 5055,
+  APP_PORT: parseInt(<string>process.env.APP_PORT),
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || "secret",
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,

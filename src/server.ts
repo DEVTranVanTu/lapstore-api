@@ -4,7 +4,7 @@ import { connectDB } from "./configs/connections";
 import { Error } from "mongoose";
 import { api } from "./routers";
 
-const port = env.APP_PORT
+const port = env.APP_PORT || 5050
 
 connectDB()
   .then(() => console.log("Connected database successfully!"))
