@@ -4,6 +4,11 @@
   "main": "server.js",
   "author": "Tran Van Tu",
   "license": "MIT",
+  "engines": {
+    "node": "16.x",
+    "npm": "8.x",
+    "yarn": "1.x"
+  },
   "scripts": {
     "build": "rimraf dist && tsc",
     "postinstall": "npm run build",
