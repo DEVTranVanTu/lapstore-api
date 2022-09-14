@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import otpModel from "../models/otp.model";
 
 const insertOtp = async (email: string, otp: string) => {
