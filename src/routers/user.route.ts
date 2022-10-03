@@ -15,9 +15,9 @@ router.route("/login").post(userController.login);
 
 router.route("/users").get(auth.verifyToken, userController.listUsers);
 
-router.route("/users/:id").get(auth.verifyToken, userController.viewProfile);
+router.route("/users/:id").get(userController.viewProfile);
 
-router.route("/users/:id").post(auth.verifyToken, userController.updateProfile);
+router.route("/users/:id").post(userController.updateProfile);
 
 //Login with google
 router

@@ -5,7 +5,9 @@ import { CartRoute } from "./cart.route";
 import { CategoriesRoute } from "./category.route";
 import { InventoryRoute } from "./inventory.route";
 import { ProductRoute } from "./product.route";
+import { ReviewRouter } from "./review.route";
 import { SubCategoriesRoute } from "./subcategory.route";
+import { UploadRouter } from "./upload.route";
 import { userRouter } from "./user.route";
 
 const router = express.Router();
@@ -33,7 +35,13 @@ router.use("/products", ProductRoute);
 /**Inventory APIs */
 router.use("/inventory", InventoryRoute);
 
-/**Inventory APIs */
+/**Cart APIs */
 router.use("/cart", CartRoute);
+
+/**Review APIs */
+router.use("/review", ReviewRouter);
+
+/**Upload APIs */
+router.use("/upload", UploadRouter);
 
 export const api = router;

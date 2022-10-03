@@ -1,5 +1,7 @@
 import { Request } from "express";
+import inventoryModel from "../models/inventory.model";
 import ProductModel from "../models/product.model";
+import reviewModel, { IReview } from "../models/review.model";
 import subcategoryModel from "../models/subcategory.model";
 
 const createProduct = async (req: Request) => {
@@ -170,16 +172,15 @@ const getProductsBySub = async (req: Request) => {
 
 const getProductById = async (id: string) => {
   let product = null;
-  await ProductModel.findById(id)
+  let reviews = null;
+  let quantity = 0;
+  await reviewModel
+    .find({ product: id })
     .then((data) => {
       if (!data) {
-        throw {
-          status: 404,
-          success: false,
-          message: "Product not found",
-        };
+        reviews = [];
       } else {
-        product = data;
+        reviews = data;
       }
     })
     .catch((error) => {
@@ -189,6 +190,59 @@ const getProductById = async (id: string) => {
         message: error.message,
       };
     });
+  await inventoryModel
+    .find({ productId: id })
+    .then((data) => {
+      if (!data) {
+        quantity = 0;
+      } else {
+        quantity = data[0].quantity;
+      }
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+  await ProductModel.findById(id)
+    .then((data) => {
+      if (!data) {
+        throw {
+          status: 404,
+          success: false,
+          message: "Product not found",
+        };
+      } else {
+        const arrRating = reviews.map((element: IReview) => {
+          return element.rating;
+        });
+        const rating = arrRating.reduce(
+          (pre: number, cur: number) => pre + cur,
+          0
+        );
+
+        const comment = reviews.filter(
+          (review: IReview) => !!review.review
+        ).length;
+        const newData = JSON.parse(JSON.stringify(data));
+        product = {
+          ...newData,
+          quantity: quantity,
+          rating: Math.round(rating / reviews.length),
+          comment: comment,
+        };
+      }
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+
   return product;
 };
 
@@ -241,6 +295,51 @@ const deleteProduct = async (req: Request) => {
       };
     });
   return success;
+};
+
+const topProduct = async () => {
+  let products = null;
+  let inventories = null;
+  let topProducts = null;
+  await inventoryModel
+    .find()
+    .then((data) => {
+      if (!data) {
+        throw {
+          status: 404,
+          success: false,
+          message: "Inventory not found",
+        };
+      } else {
+        inventories = data;
+      }
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+  await ProductModel.find()
+    .then((data) => {
+      if (!data) {
+        throw {
+          status: 404,
+          success: false,
+          message: "Product not found",
+        };
+      } else {
+        products = data;
+      }
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
 };
 
 export default {

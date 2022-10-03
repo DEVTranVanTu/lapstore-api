@@ -11,7 +11,6 @@ export interface IProduct extends Document {
   productThumbnail: string;
   description: string;
   price: number;
-  rating: number;
   status: number;
   discount: number;
   subCategory: any[];
@@ -26,7 +25,6 @@ const ProductSchema: Schema = new Schema(
     productThumbnail: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
-    rating: { type: Number },
     status: { type: Number, default: 0 },
     discount: { type: Number, required: true },
     subCategory: [
