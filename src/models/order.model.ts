@@ -1,10 +1,16 @@
 import mongoose, { Schema } from "mongoose";
 
+type product = {
+  productId: string;
+  quantity: number;
+};
+
 export interface IOrder extends Document {
   userId: string;
   cartId: string;
   shipping: object;
   payment: object;
+  products: product[];
   createdAt: Date;
   updatedAt: Date;
 }

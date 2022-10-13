@@ -3,84 +3,6 @@ import cartModel from "../models/cart.model";
 
 import inventoryModel from "../models/inventory.model";
 
-const addToCart = async ({ productId, userId, quantity }) => {
-  const stock = await inventoryModel.updateOne(
-    {
-      productId,
-      quantity: { $gt: quantity },
-    },
-    {
-      $inc: {
-        quantity: -quantity,
-      },
-      $push: {
-        reservations: {
-          userId,
-          quantity,
-        },
-      },
-    }
-  );
-  if (stock.modifiedCount) {
-    await cartModel.findOneAndUpdate(
-      {
-        userId,
-      },
-      {
-        $push: {
-          products: {
-            productId,
-            quantity,
-          },
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-      }
-    );
-  }
-};
-
-const editToCart = async ({ productId, userId, quantity }) => {
-  const stock = await inventoryModel.updateOne(
-    {
-      productId,
-      quantity: { $gt: quantity },
-    },
-    {
-      $inc: {
-        quantity: +quantity,
-      },
-      $pull: {
-        reservations: {
-          userId,
-          quantity,
-        },
-      },
-    }
-  );
-  if (stock.modifiedCount) {
-    await cartModel.findOneAndUpdate(
-      {
-        userId,
-      },
-      {
-        $pull: {
-          products: {
-            productId,
-            quantity,
-          },
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-      }
-    );
-  }
-};
-
 const getCartByUserId = async (req: Request, res: Response) => {
   let cart = null;
   const userId = req.params.id;
@@ -107,8 +29,121 @@ const getCartByUserId = async (req: Request, res: Response) => {
   return cart;
 };
 
+const addToCart = async ({ productId, quantity, userId }) => {
+  const cart = await cartModel.findOne({ userId: userId });
+  if (cart) {
+    let newQuantity = quantity;
+    let oldQuantity = 0;
+    let index = cart.products.findIndex((v) => v.productId === productId);
+    if (index > -1) {
+      const qty = cart.products[index].quantity;
+      oldQuantity = qty;
+      let delta = newQuantity - oldQuantity;
+
+      await cartModel.findOneAndUpdate(
+        {
+          userId: userId,
+          "products.productId": productId,
+        },
+        {
+          $set: {
+            modifiedOn: new Date(),
+            "products.$.quantity": newQuantity,
+          },
+        }
+      );
+      await inventoryModel.findOneAndUpdate(
+        {
+          productId: productId,
+          "reservations.userId": userId,
+        },
+        {
+          $inc: { quantity: -delta },
+          $set: {
+            "reservations.$.quantity": newQuantity,
+            modifiedOn: new Date(),
+          },
+        }
+      );
+    } else {
+      const stock = await inventoryModel.updateOne(
+        {
+          productId,
+          quantity: { $gt: quantity },
+        },
+        {
+          $inc: {
+            quantity: -quantity,
+          },
+          $push: {
+            reservations: {
+              userId,
+              quantity,
+            },
+          },
+        }
+      );
+      if (stock.modifiedCount) {
+        await cartModel.findOneAndUpdate(
+          {
+            userId,
+          },
+          {
+            $push: {
+              products: {
+                productId,
+                quantity,
+              },
+            },
+          },
+          {
+            upsert: true,
+            new: true,
+          }
+        );
+      }
+    }
+  } else {
+    const stock = await inventoryModel.updateOne(
+      {
+        productId,
+        quantity: { $gt: quantity },
+      },
+      {
+        $inc: {
+          quantity: -quantity,
+        },
+        $push: {
+          reservations: {
+            userId,
+            quantity,
+          },
+        },
+      }
+    );
+    if (stock.modifiedCount) {
+      await cartModel.findOneAndUpdate(
+        {
+          userId,
+        },
+        {
+          $push: {
+            products: {
+              productId,
+              quantity,
+            },
+          },
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
+    }
+  }
+};
+
 export default {
   addToCart,
   getCartByUserId,
-  editToCart,
 };

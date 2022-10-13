@@ -4,6 +4,7 @@ import { BrandsRoute } from "./brand.route";
 import { CartRoute } from "./cart.route";
 import { CategoriesRoute } from "./category.route";
 import { InventoryRoute } from "./inventory.route";
+import { OrderRoute } from "./order.route";
 import { ProductRoute } from "./product.route";
 import { ReviewRouter } from "./review.route";
 import { SubCategoriesRoute } from "./subcategory.route";
@@ -37,6 +38,9 @@ router.use("/inventory", InventoryRoute);
 
 /**Cart APIs */
 router.use("/cart", CartRoute);
+
+/**Order APIs */
+router.use("/order", OrderRoute);
 
 /**Review APIs */
 router.use("/review", ReviewRouter);
