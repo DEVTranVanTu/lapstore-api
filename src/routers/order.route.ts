@@ -5,4 +5,10 @@ const router = express.Router();
 
 router.route("/payment").post(orderController.payment);
 
+router.route("/list").get(orderController.listAllOrders);
+
+router.route("/list/:id").get(orderController.listOrderByUser);
+
+router.route("/cancel/:id").delete(orderController.cancelOrder);
+
 export const OrderRoute = router;

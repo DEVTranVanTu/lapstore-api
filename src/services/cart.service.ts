@@ -143,7 +143,53 @@ const addToCart = async ({ productId, quantity, userId }) => {
   }
 };
 
+const removeFromCart = async (req: Request) => {
+  const id = req.body.cart;
+  const cart = await cartModel.findOne({ _id: id });
+  const userId = cart.userId;
+
+  const products = req.body.products;
+
+  for (const product of products) {
+    await inventoryModel.updateOne(
+      {
+        productId: product.productId,
+        "reservations.userId": userId.toString(),
+      },
+      {
+        $inc: {
+          quantity: +product.quantity,
+        },
+        $pull: {
+          reservations: {
+            userId: userId.toString(),
+          },
+        },
+      }
+    );
+
+    await cartModel.updateOne(
+      {
+        userId: userId,
+        "products.productId": product.productId,
+      },
+      {
+        $pull: {
+          products: {
+            productId: product.productId,
+          },
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+  }
+};
+
 export default {
   addToCart,
   getCartByUserId,
+  removeFromCart,
 };
