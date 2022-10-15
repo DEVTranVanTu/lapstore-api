@@ -11,6 +11,7 @@ export interface IOrder extends Document {
   shipping: object;
   payment: object;
   products: product[];
+  status: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +31,11 @@ const orderSchema = new Schema(
     shipping: Object,
     payment: Object,
     products: Array,
+    status: {
+      type: Number,
+      enum: [0, 1, 2, 3, 4],
+      default: 0,
+    },
   },
   { timestamps: true }
 );

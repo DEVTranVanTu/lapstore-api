@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import brandModel from "../models/brand.model";
 import inventoryModel from "../models/inventory.model";
 import inventoryService from "../services/inventory.service";
 
@@ -95,10 +96,33 @@ const getListInventory = async (req: Request, res: Response) => {
     }
   }
 };
+
+const getInventoryByBrand = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const brand = await brandModel.find({ _id: id });
+    if (brand) {
+      const inventory = await inventoryService.getInventoryByBrand(req);
+      res.status(200).json({
+        success: true,
+        message: "Get inventory successfully!",
+        data: inventory,
+      });
+    }
+  } catch (error) {
+    if (!error.status) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res.status(error.status).json({ success: false, message: error.message });
+    }
+  }
+};
+
 export default {
   addInventory,
   getInventoryById,
   updateInventory,
   deleteInventory,
   getListInventory,
+  getInventoryByBrand,
 };

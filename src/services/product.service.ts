@@ -1,5 +1,6 @@
 import { Request } from "express";
 import inventoryModel from "../models/inventory.model";
+import productModel from "../models/product.model";
 import ProductModel from "../models/product.model";
 import reviewModel, { IReview } from "../models/review.model";
 import subcategoryModel from "../models/subcategory.model";

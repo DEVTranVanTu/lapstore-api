@@ -96,9 +96,37 @@ const cancelOrder = async (req: Request, res: Response) => {
   }
 };
 
+const updateStatusOrder = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const status = req.body.status;
+
+    const order = await orderModel.findById(id);
+    if (order && status && order.status !== 4 && status !== 4) {
+      await orderService.updateStatusOrder(req);
+      res.status(200).json({
+        success: true,
+        message: "Change status successfully!",
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Can not change status for this order!",
+      });
+    }
+  } catch (error) {
+    if (!error.status) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res.status(error.status).json({ success: false, message: error.message });
+    }
+  }
+};
+
 export default {
   payment,
   listOrderByUser,
   listAllOrders,
+  updateStatusOrder,
   cancelOrder,
 };

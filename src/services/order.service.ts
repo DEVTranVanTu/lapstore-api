@@ -69,7 +69,13 @@ const cancelOrder = async (req: Request) => {
       }
     );
   }
-  await orderModel.findByIdAndDelete(id);
+  await orderModel.findByIdAndUpdate(id, { status: 4 });
+};
+
+const updateStatusOrder = async (req: Request) => {
+  const id = req.params.id;
+  const status = req.body.status;
+  await orderModel.findByIdAndUpdate(id, { status });
 };
 
 const listOrderByUser = async (req: Request) => {
@@ -111,5 +117,6 @@ export default {
   payment,
   listOrderByUser,
   listAllOrders,
+  updateStatusOrder,
   cancelOrder,
 };

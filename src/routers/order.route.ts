@@ -11,4 +11,6 @@ router.route("/list/:id").get(orderController.listOrderByUser);
 
 router.route("/cancel/:id").delete(orderController.cancelOrder);
 
+router.route("/update/:id").put(orderController.updateStatusOrder);
+
 export const OrderRoute = router;

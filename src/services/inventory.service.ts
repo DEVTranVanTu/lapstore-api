@@ -218,10 +218,46 @@ const getListInventory = async (req: Request) => {
   return inventory;
 };
 
+const getInventoryByBrand = async (req: Request) => {
+  const brandId = req.params.id;
+  let products = null;
+  let inventories = [];
+  await productModel
+    .find({ brand: brandId })
+    .then((data) => {
+      products = data;
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+  for (const product of products) {
+    await inventoryModel
+      .findOne({ productId: product._id })
+      .then((data) => {
+        if (data) {
+          inventories.push(data);
+        }
+      })
+      .catch((error) => {
+        throw {
+          status: error.status || 500,
+          success: false,
+          message: error.message,
+        };
+      });
+  }
+  return inventories;
+};
+
 export default {
   addIventory,
   deleteInventory,
   editInventory,
   getInventoryById,
   getListInventory,
+  getInventoryByBrand,
 };
