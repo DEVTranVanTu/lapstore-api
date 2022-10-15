@@ -253,6 +253,14 @@ const getInventoryByBrand = async (req: Request) => {
   return inventories;
 };
 
+const searchInventory = async (req: Request) => {
+  const text = req.query.search;
+  const product = await productModel.find({
+    $text: { $search: `"\"${text}"\"` },
+  });
+  return product;
+};
+
 export default {
   addIventory,
   deleteInventory,
@@ -260,4 +268,5 @@ export default {
   getInventoryById,
   getListInventory,
   getInventoryByBrand,
+  searchInventory,
 };

@@ -118,6 +118,26 @@ const getInventoryByBrand = async (req: Request, res: Response) => {
   }
 };
 
+const searchInventory = async (req: Request, res: Response) => {
+  try {
+    const text = req.query.search;
+    if (text) {
+      const inventory = await inventoryService.searchInventory(req);
+      res.status(200).json({
+        success: true,
+        message: "Get inventory successfully!",
+        data: inventory,
+      });
+    }
+  } catch (error) {
+    if (!error.status) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res.status(error.status).json({ success: false, message: error.message });
+    }
+  }
+};
+
 export default {
   addInventory,
   getInventoryById,
@@ -125,4 +145,5 @@ export default {
   deleteInventory,
   getListInventory,
   getInventoryByBrand,
+  searchInventory,
 };

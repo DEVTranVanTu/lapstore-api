@@ -7,6 +7,8 @@ router.route("/").post(inventoryController.addInventory);
 
 router.route("/").get(inventoryController.getListInventory);
 
+router.route("/search").get(inventoryController.searchInventory);
+
 router.route("/:id").get(inventoryController.getInventoryById);
 
 router.route("/brand/:id").get(inventoryController.getInventoryByBrand);

@@ -33,7 +33,7 @@ const orderSchema = new Schema(
     products: Array,
     status: {
       type: Number,
-      enum: [0, 1, 2, 3, 4],
+      enum: [0, 1, 2, 3],
       default: 0,
     },
   },

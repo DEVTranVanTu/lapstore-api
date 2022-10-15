@@ -102,7 +102,7 @@ const updateStatusOrder = async (req: Request, res: Response) => {
     const status = req.body.status;
 
     const order = await orderModel.findById(id);
-    if (order && status && order.status !== 4 && status !== 4) {
+    if (order && status && order.status !== 3 && status !== 3) {
       await orderService.updateStatusOrder(req);
       res.status(200).json({
         success: true,
