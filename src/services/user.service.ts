@@ -268,6 +268,21 @@ const updateProfile = async (req: Request, res: Response) => {
   }
 };
 
+const getAllAdmin = async () => {
+  let admins = null;
+  await userModel
+    .find({ role: "Admin" })
+    .then((data) => (admins = data))
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+  return admins;
+};
+
 const checkTokenExpired = async (id: string) => {
   let tokendata = null;
   await tokenModel
@@ -301,4 +316,5 @@ export default {
   updateProfile,
   verifyEmail,
   checkTokenExpired,
+  getAllAdmin,
 };

@@ -15,6 +15,8 @@ router.route("/login").post(userController.login);
 
 router.route("/users").get(auth.verifyToken, userController.listUsers);
 
+router.route("/users/admin").get(userController.getAllAdmin);
+
 router.route("/users/:id").get(userController.viewProfile);
 
 router.route("/users/:id").post(userController.updateProfile);

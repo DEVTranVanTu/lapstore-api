@@ -126,6 +126,23 @@ const checkTokenExpired = async (req: Request, res: Response) => {
   }
 };
 
+const getAllAdmin = async (req: Request, res: Response) => {
+  try {
+    const users = await userService.getAllAdmin();
+    res.status(200).json({
+      success: true,
+      message: "Get list admin successfully!",
+      data: users,
+    });
+  } catch (error) {
+    if (!error.status) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(error.status).json({ message: error.message });
+    }
+  }
+};
+
 export default {
   register,
   login,
@@ -134,4 +151,5 @@ export default {
   updateProfile,
   verifyEmail,
   checkTokenExpired,
+  getAllAdmin,
 };
