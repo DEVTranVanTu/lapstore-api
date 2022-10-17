@@ -52,8 +52,24 @@ const deleteOneNotification = async (req: Request) => {
     });
 };
 
+const updateNotification = async (req: Request) => {
+  const id = req.params.id;
+  const status = req.body.status;
+  await notificationModel
+    .findByIdAndUpdate(id, { status })
+    .then((data) => data)
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+};
+
 export default {
   addNotification,
   getNotificationByUser,
   deleteOneNotification,
+  updateNotification,
 };

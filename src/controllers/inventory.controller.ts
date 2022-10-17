@@ -103,11 +103,7 @@ const getInventoryByBrand = async (req: Request, res: Response) => {
     const brand = await brandModel.find({ _id: id });
     if (brand) {
       const inventory = await inventoryService.getInventoryByBrand(req);
-      res.status(200).json({
-        success: true,
-        message: "Get inventory successfully!",
-        data: inventory,
-      });
+      res.status(200).send(inventory);
     }
   } catch (error) {
     if (!error.status) {
@@ -123,11 +119,7 @@ const searchInventory = async (req: Request, res: Response) => {
     const text = req.query.search;
     if (text) {
       const inventory = await inventoryService.searchInventory(req);
-      res.status(200).json({
-        success: true,
-        message: "Get inventory successfully!",
-        data: inventory,
-      });
+      res.status(200).send(inventory);
     }
   } catch (error) {
     if (!error.status) {

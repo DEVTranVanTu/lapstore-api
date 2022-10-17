@@ -221,25 +221,126 @@ const getListInventory = async (req: Request) => {
 const getInventoryByBrand = async (req: Request) => {
   const brandId = req.params.id;
   let products = null;
-  let inventories = [];
-  await productModel
-    .find({ brand: brandId })
-    .then((data) => {
-      products = data;
-    })
-    .catch((error) => {
-      throw {
-        status: error.status || 500,
-        success: false,
-        message: error.message,
-      };
-    });
-  for (const product of products) {
-    await inventoryModel
-      .findOne({ productId: product._id })
+  let inventories = null;
+  const listData = [];
+  let pagination = null;
+  let sale = 0;
+  let page: any = req.query.page;
+  let limit: any = req.query.limit;
+  let search: any = req.query.search;
+
+  let searchInput: string;
+  if (search && search.trim().length > 0) {
+    searchInput = search;
+  } else {
+    searchInput = "";
+  }
+
+  if (page && limit) {
+    const pages = parseInt(page);
+    const limits = parseInt(limit);
+    const skip = pages * limits - limits;
+    const totals = await productModel
+      .find({
+        brand: brandId,
+        productName: { $regex: ".*" + searchInput + ".*", $options: "i" },
+      })
+      .countDocuments({})
+      .then((total) => total);
+    await productModel
+      .find({
+        brand: brandId,
+        productName: { $regex: ".*" + searchInput + ".*", $options: "i" },
+      })
+      .skip(skip)
+      .limit(limits)
       .then((data) => {
-        if (data) {
-          inventories.push(data);
+        products = data;
+
+        pagination = {
+          totalRows: data.length,
+          page: page,
+          totals: totals,
+          totalPages: Math.ceil(totals / limit),
+        };
+      })
+      .catch((error) => {
+        throw {
+          status: error.status || 500,
+          success: false,
+          message: error.message,
+        };
+      });
+    for (const product of products) {
+      await inventoryModel
+        .findOne({ productId: product._id })
+        .then((data) => {
+          if (data) {
+            sale = data.reservations.reduce(
+              (pre, cur) => pre + cur.quantity,
+              0
+            );
+          }
+        })
+        .catch((error) => {
+          throw {
+            status: error.status || 500,
+            success: false,
+            message: error.message,
+          };
+        });
+
+      const newData = JSON.parse(JSON.stringify(product));
+
+      listData.push({ ...newData, sale: sale });
+    }
+  }
+  inventories = {
+    data: listData,
+    pagination: pagination,
+  };
+  return inventories;
+};
+
+const searchInventory = async (req: Request) => {
+  const text = req.query.search;
+  let inventory = null;
+  let newInventory = null;
+
+  let page: any = req.query.page;
+  let limit: any = req.query.limit;
+  if (page && limit) {
+    const pages = parseInt(page);
+    const limits = parseInt(limit);
+    const skip = pages * limits - limits;
+
+    const totals = await productModel
+      .find({ $text: { $search: `"\"${text}"\"` } })
+      .countDocuments({})
+      .then((total) => total);
+    await productModel
+      .find({
+        $text: { $search: `"\"${text}"\"` },
+      })
+      .skip(skip)
+      .limit(limits)
+      .then((data) => {
+        if (!data) {
+          throw {
+            status: 404,
+            success: false,
+            message: "Products not found",
+          };
+        } else {
+          inventory = {
+            data: data,
+            pagination: {
+              totalRows: data.length,
+              page: page,
+              totals: totals,
+              totalPages: Math.ceil(totals / limit),
+            },
+          };
         }
       })
       .catch((error) => {
@@ -249,16 +350,31 @@ const getInventoryByBrand = async (req: Request) => {
           message: error.message,
         };
       });
-  }
-  return inventories;
-};
+    let newData = inventory.data;
+    let itemData = [];
+    for (const item of newData) {
+      const inventory = await inventoryModel.findOne({
+        productId: item._id,
+      });
+      if (inventory) {
+        const newElement = JSON.parse(JSON.stringify(item));
+        const newData = {
+          ...newElement,
+          inventory: inventory._id,
+        };
+        itemData.push(newData);
+      } else {
+        itemData = newData;
+      }
+    }
 
-const searchInventory = async (req: Request) => {
-  const text = req.query.search;
-  const product = await productModel.find({
-    $text: { $search: `"\"${text}"\"` },
-  });
-  return product;
+    newInventory = {
+      data: itemData,
+      pagination: inventory.pagination,
+    };
+  }
+
+  return newInventory;
 };
 
 export default {
