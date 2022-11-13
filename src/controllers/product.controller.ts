@@ -107,6 +107,38 @@ const deleteProduct = async (req: Request, res: Response) => {
   }
 };
 
+const topProducts = async (req: Request, res: Response) => {
+  try {
+    const result = await productService.topProducts();
+
+    res.status(200).send(result);
+  } catch (error) {
+    if (!error.status) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res
+        .status(error.status)
+        .json({ success: error.success, message: error.message });
+    }
+  }
+};
+
+const topSelling = async (req: Request, res: Response) => {
+  try {
+    const result = await productService.topSelling();
+
+    res.status(200).send(result);
+  } catch (error) {
+    if (!error.status) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res
+        .status(error.status)
+        .json({ success: error.success, message: error.message });
+    }
+  }
+};
+
 export default {
   createProduct,
   getProducts,
@@ -114,4 +146,6 @@ export default {
   getProductById,
   updateProduct,
   deleteProduct,
+  topProducts,
+  topSelling,
 };

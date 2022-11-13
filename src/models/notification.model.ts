@@ -23,11 +23,6 @@ const notificationSchema = new Schema(
     message: { type: String },
     idToReview: { type: String },
     status: { type: String, default: "active" },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      expires: "7d",
-    },
   },
   { timestamps: true }
 );

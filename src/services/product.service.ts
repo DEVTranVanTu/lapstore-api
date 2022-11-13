@@ -1,5 +1,6 @@
-import { Request } from "express";
+import { Request, Response } from "express";
 import inventoryModel from "../models/inventory.model";
+import orderModel from "../models/order.model";
 import productModel from "../models/product.model";
 import ProductModel from "../models/product.model";
 import reviewModel, { IReview } from "../models/review.model";
@@ -102,6 +103,8 @@ const getProductsBySub = async (req: Request) => {
   let id = req.params.id;
   let page: any = req.query.page;
   let limit: any = req.query.limit;
+  let sort: any = req.query.sort;
+
   let products = null;
   const check = await subcategoryModel.findById({ _id: id });
   const query = {
@@ -112,11 +115,17 @@ const getProductsBySub = async (req: Request) => {
     const pages = parseInt(page);
     const limits = parseInt(limit);
     const skip = pages * limits - limits;
-
+    let sorts = null;
+    if (sort === "lowToHigh") {
+      sorts = 1;
+    } else {
+      sorts = -1;
+    }
     const totals = await ProductModel.countDocuments({
       subCategory: check._id,
     }).then((total) => total);
     await ProductModel.find({ subCategory: check._id })
+      .sort({ price: sorts })
       .skip(skip)
       .limit(limits)
       .then((data) => {
@@ -298,22 +307,18 @@ const deleteProduct = async (req: Request) => {
   return success;
 };
 
-const topProduct = async () => {
-  let products = null;
-  let inventories = null;
-  let topProducts = null;
-  await inventoryModel
+const topProducts = async () => {
+  const listProducts = [];
+
+  await orderModel
     .find()
     .then((data) => {
-      if (!data) {
-        throw {
-          status: 404,
-          success: false,
-          message: "Inventory not found",
-        };
-      } else {
-        inventories = data;
-      }
+      data.forEach((i) => {
+        const products = i.products;
+        products.forEach((i) => {
+          listProducts.push(i);
+        });
+      });
     })
     .catch((error) => {
       throw {
@@ -322,17 +327,50 @@ const topProduct = async () => {
         message: error.message,
       };
     });
-  await ProductModel.find()
+  var newArr = [];
+  for (var i = 0; i < listProducts.length; i++) {
+    const index = newArr
+      .map((e) => e.productId)
+      .indexOf(listProducts[i].productId);
+
+    if (index === -1) {
+      newArr.push(listProducts[i]);
+    } else {
+      newArr[index] = {
+        productId: newArr[index].productId,
+        quantity: newArr[index].quantity + listProducts[i].quantity,
+      };
+    }
+  }
+
+  newArr.sort((a, b) => b.quantity - a.quantity);
+
+  const topProducts = newArr.length > 10 ? newArr.slice(0, 9) : newArr;
+
+  const listProductsDetail = [];
+
+  for (const product of topProducts) {
+    const productDetail = await ProductModel.findById({
+      _id: product.productId,
+    });
+    const rating = await reviewModel.findOne({ product: product.productId });
+
+    listProductsDetail.push({
+      productDetail: productDetail,
+      quantity: product.quantity,
+      rating: rating ? rating.rating : 0,
+    });
+  }
+
+  return listProductsDetail;
+};
+
+const topSelling = async () => {
+  let products = [];
+  await productModel
+    .find()
     .then((data) => {
-      if (!data) {
-        throw {
-          status: 404,
-          success: false,
-          message: "Product not found",
-        };
-      } else {
-        products = data;
-      }
+      products = data;
     })
     .catch((error) => {
       throw {
@@ -341,6 +379,11 @@ const topProduct = async () => {
         message: error.message,
       };
     });
+  products.sort((a, b) => b.discount - a.discount);
+
+  const listProducts = products.slice(0, 8);
+
+  return listProducts;
 };
 
 export default {
@@ -350,4 +393,6 @@ export default {
   getProductById,
   updateProduct,
   deleteProduct,
+  topProducts,
+  topSelling,
 };

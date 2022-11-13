@@ -2,12 +2,14 @@ import { Request, Response } from "express";
 import cartModel from "../models/cart.model";
 
 import inventoryModel from "../models/inventory.model";
+import productModel from "../models/product.model";
 
 const getCartByUserId = async (req: Request, res: Response) => {
   let cart = null;
   const userId = req.params.id;
+  let newProduct = [];
   await cartModel
-    .find({ userId: userId })
+    .findOne({ userId: userId })
     .then((data) => {
       if (!data) {
         throw {
@@ -16,7 +18,7 @@ const getCartByUserId = async (req: Request, res: Response) => {
           message: "Cart not found",
         };
       } else {
-        cart = data[0];
+        cart = data;
       }
     })
     .catch((error) => {
@@ -26,7 +28,26 @@ const getCartByUserId = async (req: Request, res: Response) => {
         message: error.message,
       };
     });
-  return cart;
+  const products = cart?.products || [];
+  if (products) {
+    for (const product of products) {
+      const productData = await productModel.findOne({
+        _id: product.productId,
+      });
+      const data = {
+        product: productData,
+        quantity: product.quantity,
+      };
+      newProduct.push(data);
+    }
+  }
+  const cartData = JSON.parse(JSON.stringify(cart));
+  const newCart = {
+    ...cartData,
+    products: newProduct,
+  };
+
+  return newCart;
 };
 
 const addToCart = async ({ productId, quantity, userId }) => {
