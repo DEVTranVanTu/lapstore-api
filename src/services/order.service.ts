@@ -4,6 +4,7 @@ import cartModel from "../models/cart.model";
 import inventoryModel from "../models/inventory.model";
 import orderModel from "../models/order.model";
 import notificationService from "./notification.service";
+import productService from "./product.service";
 
 const payment = async (req: Request) => {
   const newOrder = new orderModel(req.body);
@@ -118,11 +119,45 @@ const updateStatusOrder = async (req: Request) => {
 
 const listOrderByUser = async (req: Request) => {
   const userId = req.params.id;
-  let listOrder = null;
+  let listOrder = [];
+  let pagination = null;
+
+  let page: any = req.query.page;
+  let limit: any = req.query.limit;
+  let search: any = req.query.search;
+
+  let searchInput: string;
+  if (search && search.trim().length > 0) {
+    searchInput = search;
+  } else {
+    searchInput = "";
+  }
+  const pages = parseInt(page);
+  const limits = parseInt(limit);
+  const skip = pages * limits - limits;
+
+  const totals = await orderModel
+    .find({
+      userId: userId,
+      ...(searchInput && { status: searchInput }),
+    })
+    .countDocuments({})
+    .then((total) => total);
   await orderModel
-    .find({ userId: userId })
+    .find({
+      userId: userId,
+      ...(searchInput && { status: searchInput }),
+    })
+    .skip(skip)
+    .limit(limits)
     .then((data) => {
       listOrder = data;
+      pagination = {
+        totalRows: data.length,
+        page: page,
+        totals: totals,
+        totalPages: Math.ceil(totals / limit),
+      };
     })
     .catch((error) => {
       throw {
@@ -131,7 +166,37 @@ const listOrderByUser = async (req: Request) => {
         message: error.message,
       };
     });
-  return listOrder;
+  const newList = [];
+  for (let order of listOrder) {
+    const newproducts = order.products.map(async (i: any) => {
+      let newProduct = null;
+      await productService.getProductById(i.productId).then((data) => {
+        newProduct = data;
+      });
+      const curr = JSON.parse(JSON.stringify(i));
+      const newData = {
+        ...curr,
+        productDetail: newProduct,
+      };
+      return newData;
+    });
+    const currOrder = JSON.parse(JSON.stringify(order));
+
+    const data = await Promise.all(newproducts);
+
+    const newOrder = {
+      ...currOrder,
+      products: data,
+    };
+    newList.push(newOrder);
+  }
+
+  const data = {
+    data: newList,
+    pagination: pagination,
+  };
+
+  return data;
 };
 
 const listAllOrders = async () => {
