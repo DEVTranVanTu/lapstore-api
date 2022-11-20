@@ -13,4 +13,6 @@ router.route("/cancel/:id").delete(orderController.cancelOrder);
 
 router.route("/update/:id").put(orderController.updateStatusOrder);
 
+router.route("/address/:id").put(orderController.updateShippingAddress);
+
 export const OrderRoute = router;

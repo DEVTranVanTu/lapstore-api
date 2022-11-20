@@ -123,10 +123,36 @@ const updateStatusOrder = async (req: Request, res: Response) => {
   }
 };
 
+const updateShippingAddress = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+
+    const order = await orderModel.findById(id);
+    if (order && order.status !== 3 && order.status !== 2) {
+      await orderService.updateShippingAddress(req);
+      res.status(200).json({
+        success: true,
+        message: "Change address successfully!",
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Can not change address for this order!",
+      });
+    }
+  } catch (error) {
+    if (!error.status) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res.status(error.status).json({ success: false, message: error.message });
+    }
+  }
+};
 export default {
   payment,
   listOrderByUser,
   listAllOrders,
   updateStatusOrder,
   cancelOrder,
+  updateShippingAddress,
 };

@@ -117,6 +117,24 @@ const updateStatusOrder = async (req: Request) => {
   await notificationService.addNotification(notification);
 };
 
+const updateShippingAddress = async (req: Request) => {
+  const id = req.params.id;
+  const shipping = req.body.shipping;
+  const order = await orderModel.findByIdAndUpdate(id, { shipping });
+  const getMessage = () => {
+    return "Bạn đã cập nhật địa điểm giao hàng thành công";
+  };
+  const notification = {
+    userId: order.userId,
+    message: getMessage(),
+    typeOfNotification: "order",
+    image: "",
+    status: "active",
+    idToReview: order._id,
+  };
+  await notificationService.addNotification(notification);
+};
+
 const listOrderByUser = async (req: Request) => {
   const userId = req.params.id;
   let listOrder = [];
@@ -218,6 +236,7 @@ const listAllOrders = async () => {
 
 export default {
   payment,
+  updateShippingAddress,
   listOrderByUser,
   listAllOrders,
   updateStatusOrder,
