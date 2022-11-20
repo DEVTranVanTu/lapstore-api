@@ -8,6 +8,7 @@ import { NotificationRoute } from "./notification.route";
 import { OrderRoute } from "./order.route";
 import { ProductRoute } from "./product.route";
 import { ReviewRouter } from "./review.route";
+import { ShippingRouter } from "./shipping.route";
 import { SubCategoriesRoute } from "./subcategory.route";
 import { UploadRouter } from "./upload.route";
 import { userRouter } from "./user.route";
@@ -51,5 +52,8 @@ router.use("/notification", NotificationRoute);
 
 /**Upload APIs */
 router.use("/upload", UploadRouter);
+
+/**Shipping address APIs */
+router.use("/shipping", ShippingRouter);
 
 export const api = router;
