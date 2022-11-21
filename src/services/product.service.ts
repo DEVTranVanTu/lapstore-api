@@ -386,23 +386,6 @@ const topSelling = async () => {
   return listProducts;
 };
 
-const recommenedProduct = async () => {
-  let products = [];
-  const topReview = (await reviewModel.find()).filter((v) => v.rating >= 4);
-  await productModel
-    .find()
-    .then((data) => {
-      products = data;
-    })
-    .catch((error) => {
-      throw {
-        status: error.status || 500,
-        success: false,
-        message: error.message,
-      };
-    });
-};
-
 export default {
   createProduct,
   getProducts,
@@ -412,5 +395,4 @@ export default {
   deleteProduct,
   topProducts,
   topSelling,
-  recommenedProduct,
 };
