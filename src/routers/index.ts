@@ -3,6 +3,7 @@ import { HttpStatusCode } from "../utils/constants";
 import { BrandsRoute } from "./brand.route";
 import { CartRoute } from "./cart.route";
 import { CategoriesRoute } from "./category.route";
+import { dashboardRouter } from "./dashboard.router";
 import { InventoryRoute } from "./inventory.route";
 import { NotificationRoute } from "./notification.route";
 import { OrderRoute } from "./order.route";
@@ -55,5 +56,8 @@ router.use("/upload", UploadRouter);
 
 /**Shipping address APIs */
 router.use("/shipping", ShippingRouter);
+
+/**Shipping address APIs */
+router.use("/dashboard", dashboardRouter);
 
 export const api = router;

@@ -101,9 +101,12 @@ const getProducts = async (req: Request) => {
 
 const getProductsBySub = async (req: Request) => {
   let id = req.params.id;
-  let page: any = req.query.page;
-  let limit: any = req.query.limit;
+  let page: any = req.query.page || 1;
+  let limit: any = req.query.limit || 10;
   let sort: any = req.query.sort;
+  let filters: any = req.query.filters;
+
+  console.log(filters);
 
   let products = null;
   const check = await subcategoryModel.findById({ _id: id });
@@ -111,72 +114,63 @@ const getProductsBySub = async (req: Request) => {
     page: page,
     limit: limit,
   };
-  if (query) {
-    const pages = parseInt(page);
-    const limits = parseInt(limit);
-    const skip = pages * limits - limits;
-    let sorts = null;
-    if (sort === "lowToHigh") {
-      sorts = 1;
-    } else {
-      sorts = -1;
-    }
-    const totals = await ProductModel.countDocuments({
-      subCategory: check._id,
-    }).then((total) => total);
-    await ProductModel.find({ subCategory: check._id })
-      .sort({ price: sorts })
-      .skip(skip)
-      .limit(limits)
-      .then((data) => {
-        if (!data) {
-          throw {
-            status: 404,
-            success: false,
-            message: "Products not found",
-          };
-        } else {
-          products = {
-            data: data,
-            pagination: {
-              totalRows: data.length,
-              page: page,
-              totals: totals,
-              totalPages: Math.ceil(totals / limit),
-            },
-          };
-        }
-      })
-      .catch((error) => {
-        throw {
-          status: error.status || 500,
-          success: false,
-          message: error.message,
-        };
-      });
+  const pages = parseInt(page);
+  const limits = parseInt(limit);
+  const skip = pages * limits - limits;
+  let sorts = null;
+  if (sort === "lowToHigh") {
+    sorts = 1;
   } else {
-    await ProductModel.find()
-      .then((data) => {
-        if (!data) {
-          throw {
-            status: 404,
-            success: false,
-            message: "Products not found",
-          };
-        } else {
-          products = data.filter(function (e) {
-            return e.subCategory.includes({ _id: id });
-          });
-        }
-      })
-      .catch((error) => {
-        throw {
-          status: error.status || 500,
-          success: false,
-          message: error.message,
-        };
-      });
+    sorts = -1;
   }
+  const specs = filters.specs || [];
+  const totals = await ProductModel.countDocuments({
+    subCategory: check._id,
+    "specs.value": { $in: specs },
+    price: {
+      $gt: parseInt(filters?.priceFrom || 0),
+      $lt: parseInt(filters?.priceTo || 900000000),
+    },
+  }).then((total) => total);
+  await ProductModel.find({
+    subCategory: check._id,
+    "specs.value": { $in: specs },
+
+    price: {
+      $gt: parseInt(filters?.priceFrom || 0),
+      $lt: parseInt(filters?.priceTo || 900000000),
+    },
+  })
+    .sort({ price: sorts })
+    .skip(skip)
+    .limit(limits)
+    .then((data) => {
+      if (!data) {
+        throw {
+          status: 404,
+          success: false,
+          message: "Products not found",
+        };
+      } else {
+        products = {
+          data: data,
+          pagination: {
+            totalRows: data.length,
+            page: page,
+            totals: totals,
+            totalPages: Math.ceil(totals / limit),
+          },
+        };
+      }
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+
   return products;
 };
 

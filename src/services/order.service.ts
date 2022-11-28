@@ -217,12 +217,54 @@ const listOrderByUser = async (req: Request) => {
   return data;
 };
 
-const listAllOrders = async () => {
+const listAllOrders = async (req: Request) => {
   let orders = null;
+  let pagination = null;
+  let page: any = req.query.page;
+  let limit: any = req.query.limit;
+  let search: any = req.query.search;
+
+  let searchInput: string;
+  if (search && search.trim().length > 0) {
+    searchInput = search;
+  } else {
+    searchInput = "";
+  }
+
+  const pages = parseInt(page);
+  const limits = parseInt(limit);
+  const skip = pages * limits - limits;
+  const totals = await orderModel
+    .find({
+      ...(searchInput && {
+        "products.productId": {
+          $regex: ".*" + searchInput + ".*",
+          $options: "i",
+        },
+      }),
+    })
+    .countDocuments({})
+    .then((total) => total);
+
   await orderModel
-    .find()
+    .find({
+      ...(searchInput && {
+        "products.productId": {
+          $regex: ".*" + searchInput + ".*",
+          $options: "i",
+        },
+      }),
+    })
+    .skip(skip)
+    .limit(limits)
     .then((data) => {
       orders = data;
+      pagination = {
+        totalRows: data.length,
+        page: page,
+        totals: totals,
+        totalPages: Math.ceil(totals / limit),
+      };
     })
     .catch((error) => {
       throw {
@@ -231,10 +273,82 @@ const listAllOrders = async () => {
         message: error.message,
       };
     });
-  return orders;
+  const newList = [];
+  for (let order of orders) {
+    const newproducts = order.products.map(async (i: any) => {
+      let newProduct = null;
+      await productService.getProductById(i.productId).then((data) => {
+        newProduct = data;
+      });
+      const curr = JSON.parse(JSON.stringify(i));
+      const newData = {
+        ...curr,
+        productDetail: newProduct,
+      };
+      return newData;
+    });
+    const currOrder = JSON.parse(JSON.stringify(order));
+
+    const data = await Promise.all(newproducts);
+
+    const newOrder = {
+      ...currOrder,
+      products: data,
+    };
+    newList.push(newOrder);
+  }
+
+  const data = {
+    data: newList,
+    pagination: pagination,
+  };
+
+  return data;
+};
+
+const getOrderById = async (id: string) => {
+  let order = null;
+
+  await orderModel
+    .findById(id)
+    .then((data) => {
+      order = data;
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+
+  const products = order.products;
+
+  const newProducts = products?.map(async (i: any) => {
+    let newProduct = null;
+    await productService.getProductById(i.productId).then((data) => {
+      newProduct = data;
+    });
+    const curr = JSON.parse(JSON.stringify(i));
+    const newData = {
+      ...curr,
+      productDetail: newProduct,
+    };
+    return newData;
+  });
+
+  const data = await Promise.all(newProducts);
+  const currOrder = JSON.parse(JSON.stringify(order));
+
+  const newOrder = {
+    ...currOrder,
+    products: data,
+  };
+  return newOrder;
 };
 
 export default {
+  getOrderById,
   payment,
   updateShippingAddress,
   listOrderByUser,

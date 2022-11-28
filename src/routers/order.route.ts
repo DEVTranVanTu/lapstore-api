@@ -15,4 +15,6 @@ router.route("/update/:id").put(orderController.updateStatusOrder);
 
 router.route("/address/:id").put(orderController.updateShippingAddress);
 
+router.route("/:id").get(orderController.getOrderById);
+
 export const OrderRoute = router;

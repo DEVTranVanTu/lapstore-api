@@ -57,7 +57,7 @@ const listOrderByUser = async (req: Request, res: Response) => {
 
 const listAllOrders = async (req: Request, res: Response) => {
   try {
-    const orders = await orderService.listAllOrders();
+    const orders = await orderService.listAllOrders(req);
     res.status(200).json({
       success: true,
       message: "get list order successfully!",
@@ -148,7 +148,21 @@ const updateShippingAddress = async (req: Request, res: Response) => {
     }
   }
 };
+
+const getOrderById = async (req: Request, res: Response) => {
+  try {
+    const product = await orderService.getOrderById(req.params.id);
+    res.status(200).send(product);
+  } catch (error) {
+    if (!error.status) {
+      res.status(500).json({ message: error.message });
+    } else {
+      res.status(error.status).json({ message: error.message });
+    }
+  }
+};
 export default {
+  getOrderById,
   payment,
   listOrderByUser,
   listAllOrders,
