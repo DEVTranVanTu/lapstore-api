@@ -67,7 +67,7 @@ const cancelOrder = async (req: Request) => {
   const order = await orderModel.findOne({ _id: id });
   const notification = {
     userId: order.userId,
-    message: "Bạn hủy đơn hàng thành công",
+    message: "Hủy đơn hàng thành công",
     typeOfNotification: "order",
     image: "",
     status: "active",
@@ -97,13 +97,13 @@ const updateStatusOrder = async (req: Request) => {
   const order = await orderModel.findByIdAndUpdate(id, { status });
   const getMessage = () => {
     if (status === 0) {
-      return "Đơn hàng của bạn đang chờ được giao cho người giao hàng.";
+      return "Đơn hàng đang chờ được giao cho người giao hàng.";
     }
     if (status === 1) {
-      return "Đơn hàng của bạn đang được giao.";
+      return "Đơn hàng đang được giao.";
     }
     if (status === 2) {
-      return "Đơn hàng của bạn đã được giao thành công";
+      return "Đơn hàng đã được giao thành công";
     }
   };
   const notification = {
@@ -122,7 +122,7 @@ const updateShippingAddress = async (req: Request) => {
   const shipping = req.body.shipping;
   const order = await orderModel.findByIdAndUpdate(id, { shipping });
   const getMessage = () => {
-    return "Bạn đã cập nhật địa điểm giao hàng thành công";
+    return "Cập nhật địa điểm giao hàng thành công";
   };
   const notification = {
     userId: order.userId,
