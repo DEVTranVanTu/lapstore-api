@@ -200,7 +200,7 @@ const getProductById = async (id: string) => {
       if (!data) {
         quantity = 0;
       } else {
-        quantity = data[0].quantity;
+        quantity = data[0]?.quantity;
       }
     })
     .catch((error) => {

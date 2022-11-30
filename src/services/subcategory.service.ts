@@ -148,16 +148,7 @@ const updateSubCategory = async (req: Request) => {
 };
 
 const updateStatusSubCategory = async (req: Request) => {
-  const { subCategoryName } = req.body;
   const active = req.body.active;
-
-  const check = await subcategoryModel.findOne({ subCategoryName });
-  if (check) {
-    throw {
-      status: 409,
-      message: "The subCategory name already exists!",
-    };
-  }
   let success = false;
   const id = req.params.id;
   await subcategoryModel

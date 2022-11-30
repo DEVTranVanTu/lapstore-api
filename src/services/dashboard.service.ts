@@ -42,7 +42,11 @@ const getDashboardInfo = async () => {
 
   const totalPrice = newList.map((i) => {
     return i.products.reduce(
-      (pre: any, cur: any) => pre + cur.quantity * cur.productDetail.price,
+      (pre: any, cur: any) =>
+        pre +
+        cur.quantity *
+          (cur.productDetail.price -
+            (cur.productDetail.price * cur.productDetail.discount) / 100),
       0
     );
   });
@@ -62,7 +66,7 @@ const getDashboardInfo = async () => {
     const products = data.reduce((pre, cur) => pre.concat(cur), []);
 
     const sale = products.map((i: any) => {
-      return i?.quantity * i?.productDetail.price;
+      return i?.quantity * (i?.productDetail.price - i?.productDetail.discount);
     });
 
     const value = sale.reduce((pre: any, cur: any) => pre + (cur ? cur : 0), 0);
