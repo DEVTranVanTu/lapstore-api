@@ -102,7 +102,7 @@ const getInventoryByBrand = async (req: Request, res: Response) => {
     const id = req.params.id;
     const brand = await brandModel.find({ _id: id });
     if (brand) {
-      const inventory = await inventoryService.getInventoryByBrand(req);
+      const inventory = await inventoryService.getProductBrand(req);
       res.status(200).send(inventory);
     }
   } catch (error) {

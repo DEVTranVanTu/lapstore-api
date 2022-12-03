@@ -38,7 +38,7 @@ const getProducts = async (req: Request, res: Response) => {
 
 const getProductsBySub = async (req: Request, res: Response) => {
   try {
-    const products = await productService.getProductsBySub(req);
+    const products = await productService.getProductSub(req);
     res.status(200).send(products);
   } catch (error) {
     if (!error.status) {

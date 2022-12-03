@@ -17,6 +17,9 @@ export interface IProduct extends Document {
   category: any[];
   brand: IBrand;
   specs: spec[];
+  ram: String;
+  screen: String;
+  cpu: String;
 }
 
 const ProductSchema: Schema = new Schema(
@@ -27,6 +30,9 @@ const ProductSchema: Schema = new Schema(
     price: { type: Number, required: true },
     status: { type: Number, default: 0 },
     discount: { type: Number, required: true },
+    ram: { type: String },
+    screen: { type: String },
+    cpu: { type: String },
     subCategory: [
       {
         type: mongoose.Schema.Types.ObjectId,

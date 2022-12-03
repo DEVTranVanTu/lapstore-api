@@ -218,6 +218,100 @@ const getListInventory = async (req: Request) => {
   return inventory;
 };
 
+const getProductBrand = async (req: Request) => {
+  const brandId = req.params.id;
+
+  let page: any = req.query.page || 1;
+  let limit: any = req.query.limit || 10;
+  let sort: any = req.query.sort;
+  let filters: any = req.query.filters;
+
+  let products = null;
+  const pages = parseInt(page);
+  const limits = parseInt(limit);
+  const skip = pages * limits - limits;
+  let sorts = null;
+  if (sort === "lowToHigh") {
+    sorts = 1;
+  } else {
+    sorts = -1;
+  }
+  const filter = JSON.parse(filters);
+  const ram = filter?.ram.length > 0 ? filter?.ram : ["8GB", "16GB", "32GB"];
+  const cpu =
+    filter?.cpu.length > 0
+      ? filter?.cpu
+      : [
+          "M1",
+          "M2",
+          "Core I3",
+          "Core I5",
+          "Core I7",
+          "Ryzen 3",
+          "Ryzen 5",
+          "Ryzen 7",
+        ];
+  const screen =
+    filter?.screen.length > 0 ? filter?.screen : ["13.3", "13.6", "14", "16"];
+
+  const totals = await productModel
+    .countDocuments({
+      brand: brandId,
+      ram: { $in: ram },
+      cpu: { $in: cpu },
+      screen: { $in: screen },
+
+      price: {
+        $gte: parseInt(filter?.priceFrom || 0),
+        $lt: parseInt(filter?.priceTo || 900000000),
+      },
+    })
+    .then((total) => total);
+  await productModel
+    .find({
+      brand: brandId,
+      ram: { $in: ram },
+      cpu: { $in: cpu },
+      screen: { $in: screen },
+
+      price: {
+        $gte: parseInt(filter?.priceFrom || 0),
+        $lt: parseInt(filter?.priceTo || 900000000),
+      },
+    })
+    .sort({ price: sorts })
+    .skip(skip)
+    .limit(limits)
+    .then((data) => {
+      if (!data) {
+        throw {
+          status: 404,
+          success: false,
+          message: "Products not found",
+        };
+      } else {
+        products = {
+          data: data,
+          pagination: {
+            totalRows: data.length,
+            page: page,
+            totals: totals,
+            totalPages: Math.ceil(totals / limit),
+          },
+        };
+      }
+    })
+    .catch((error) => {
+      throw {
+        status: error.status || 500,
+        success: false,
+        message: error.message,
+      };
+    });
+
+  return products;
+};
+
 const getInventoryByBrand = async (req: Request) => {
   const brandId = req.params.id;
   let products = null;
@@ -385,4 +479,5 @@ export default {
   getListInventory,
   getInventoryByBrand,
   searchInventory,
+  getProductBrand,
 };
