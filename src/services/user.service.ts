@@ -17,7 +17,7 @@ const verifyEmail = async (req: Request, res: Response) => {
     const otpHolder = await otpModel.find({ email });
     if (!otpHolder.length) {
       return res.status(404).json({
-        status: "Bad request",
+        success: false,
         message: "Expired OTP!",
       });
     }
@@ -26,7 +26,7 @@ const verifyEmail = async (req: Request, res: Response) => {
     const isValid = await otpService.validOtp(otp, otpParams);
     if (!isValid) {
       return res.status(401).json({
-        status: "faild",
+        success: false,
         message: "Invalid OTP!",
       });
     }
@@ -45,10 +45,13 @@ const verifyEmail = async (req: Request, res: Response) => {
         token: auth.generateToken(userInfo),
       });
       await token.save();
-
-      return res.status(201).json({
-        status: "Ok",
+      const result = {
         user: userInfo,
+        token: auth.generateToken(userInfo),
+      };
+      return res.status(201).json({
+        success: true,
+        data: result,
       });
     }
   } catch (error) {
@@ -64,14 +67,14 @@ const register = async (req: Request, res: Response) => {
 
   if (!email) {
     return res.status(404).json({
-      status: "failed!",
+      success: false,
       message: "Email is invalid!",
     });
   }
   const insertOtp = await otpService.insertOtp(email, otp);
   if (!insertOtp) {
     return res.status(404).json({
-      status: "failed!",
+      success: false,
       message: "Error! An error occurred. Please try again later",
     });
   }
@@ -111,7 +114,9 @@ const register = async (req: Request, res: Response) => {
     // Gọi hành động gửi email
     await transport.sendMail(mailOptions);
     // Không có lỗi gì thì trả về success
-    res.status(200).json({ message: "Email sent successfully." });
+    res
+      .status(200)
+      .json({ success: true, message: "Email sent successfully." });
   } catch (err) {
     console.log(err);
   }
