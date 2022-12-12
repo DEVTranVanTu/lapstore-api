@@ -7,10 +7,6 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: string;
-  dateofbirth: Date;
-  phoneNumber: string;
-  photo: string;
-  location: string;
   profile: object;
   authGoogleID: string;
   authFbID: string;

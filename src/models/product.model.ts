@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { IBrand } from "./brand.model";
-import { ISubCategory } from "./subcategory.model";
 
 type spec = {
   key: string;

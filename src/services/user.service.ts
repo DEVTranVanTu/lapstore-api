@@ -23,6 +23,7 @@ const verifyEmail = async (req: Request, res: Response) => {
     }
     const lastOtp = otpHolder[otpHolder.length - 1];
     const otpParams = lastOtp.otp.toString();
+
     const isValid = await otpService.validOtp(otp, otpParams);
     if (!isValid) {
       return res.status(401).json({
