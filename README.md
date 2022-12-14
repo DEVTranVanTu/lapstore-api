@@ -11,7 +11,7 @@
 Clone project and run test.
 
 ```
-$ git clone https://github.com/TVTTranVanTu/lapstore-api
+$ git clone git@github.com:DEVTuTran/lapstore-api.git
 $ cd lapstore-api
 $ yarn install or npm install
 $ yarn start or npm start
