@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import tokenModel from "../models/token.model";
 import userModel from "../models/user.model";
 import { env } from "../configs/environments";
-import helpers from "../utils/helpers";
+// import helpers from "../utils/helpers";
 
 const generateToken = (user: Object) => {
   return jwt.sign(user, env.ACCESS_TOKEN_SECRET, {
@@ -66,14 +66,14 @@ const confirmEmail = async (
   }
 };
 
-const authGoogleSuccess = (req: any, res: any, next: any) => {
-  const userInfo = helpers.setUserInfo(req.user);
-  const token = `${generateToken(userInfo)}`;
-  const id = userInfo._id;
-  return res.redirect(
-    302,
-    `${env.SUCCESS_CALLBACK_URL}?token=${token}&id=${id}`
-  );
-};
+// const authGoogleSuccess = (req: any, res: any, next: any) => {
+//   const userInfo = helpers.setUserInfo(req.user);
+//   const token = `${generateToken(userInfo)}`;
+//   const id = userInfo._id;
+//   return res.redirect(
+//     302,
+//     `${env.SUCCESS_CALLBACK_URL}?token=${token}&id=${id}`
+//   );
+// };
 
-export default { generateToken, confirmEmail, verifyToken, authGoogleSuccess };
+export default { generateToken, confirmEmail, verifyToken };
