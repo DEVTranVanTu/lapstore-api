@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import userModel from "../models/user.model";
 import userService from "../services/user.service";
-import { HttpStatusCode } from "../utils/constants";
 import { userValidate } from "../validations";
 
 const verifyEmail = async (req: Request, res: Response) => {
