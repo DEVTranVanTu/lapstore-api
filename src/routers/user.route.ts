@@ -22,32 +22,32 @@ router.route("/users/:id").get(userController.viewProfile);
 router.route("/users/:id").post(userController.updateProfile);
 
 //Login with google
-// router
-//   .route("/login/google")
-//   .get(passport.authenticate("google", { scope: ["profile", "email"] }));
+router
+  .route("/login/google")
+  .get(passport.authenticate("google", { scope: ["profile", "email"] }));
 
-// router.route("/google/callback").get(
-//   passport.authenticate("google", {
-//     failureMessage: "Cannot login to Google, please try again latery!",
-//     failureRedirect: process.env.ERROR_CALLBACK_URL,
-//     session: false,
-//   }),
-//   auth.authGoogleSuccess
-// );
+router.route("/google/callback").get(
+  passport.authenticate("google", {
+    failureMessage: "Cannot login to Google, please try again latery!",
+    failureRedirect: process.env.ERROR_CALLBACK_URL,
+    session: false,
+  }),
+  auth.authGoogleSuccess
+);
 //Login with facebook
-// router
-//   .route("/login/facebook")
-//   .get(
-//     passport.authenticate("facebook", { scope: ["public_profile", "email"] })
-//   );
+router
+  .route("/login/facebook")
+  .get(
+    passport.authenticate("facebook", { scope: ["public_profile", "email"] })
+  );
 
-// router.route("/facebook/callback").get(
-//   passport.authenticate("facebook", {
-//     failureMessage: "Cannot login to Facebook, please try again latery!",
-//     failureRedirect: process.env.ERROR_CALLBACK_URL,
-//     session: false,
-//   }),
-//   auth.authGoogleSuccess
-// );
+router.route("/facebook/callback").get(
+  passport.authenticate("facebook", {
+    failureMessage: "Cannot login to Facebook, please try again latery!",
+    failureRedirect: process.env.ERROR_CALLBACK_URL,
+    session: false,
+  }),
+  auth.authGoogleSuccess
+);
 
 export const userRouter = router;
