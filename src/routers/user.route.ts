@@ -1,7 +1,7 @@
 import express from "express";
-import passport from "passport";
+// import passport from "passport";
 import userController from "../controllers/user.controller";
-import auth from "../middlewares/auth.middlewares";
+// import auth from "../middlewares/auth.middlewares";
 require("../configs/passport");
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.route("/register").post(userController.register);
 
 router.route("/login").post(userController.login);
 
-router.route("/users").get(auth.verifyToken, userController.listUsers);
+router.route("/users").get(userController.listUsers);
 
 router.route("/users/admin").get(userController.getAllAdmin);
 
